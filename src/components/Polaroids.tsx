@@ -30,7 +30,7 @@ function PolaroidMesh({ instance, texture, state }: {
   texture: THREE.Texture;
   state: TreeState;
 }) {
-  const meshRef = useRef<THREE.Mesh>(null);
+  const meshRef = useRef<THREE.Group>(null);
   const progressRef = useRef(state === 'FORMED' ? 1 : 0);
 
   useFrame((_, delta) => {

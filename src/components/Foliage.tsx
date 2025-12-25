@@ -1,8 +1,8 @@
 import { useRef, useMemo, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { DualPosition, TreeState } from '../types';
-import { generateDualPositions, lerpVector3, smoothStep } from '../utils/positions';
+import { TreeState } from '../types';
+import { generateDualPositions, smoothStep } from '../utils/positions';
 
 interface FoliageProps {
   count?: number;

@@ -1,11 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { HandGesture } from '../types';
 
-interface HandDetectionResult {
-  isOpen: boolean;
-  position: { x: number; y: number; z: number };
-}
-
 export function useHandGesture() {
   const [gesture, setGesture] = useState<HandGesture>({
     isOpen: false,
@@ -51,14 +46,34 @@ export function useHandGesture() {
         console.log('Video element playing');
         setStatus('Loading MediaPipe...');
 
-        const { Hands } = await import('@mediapipe/hands');
-        const { Camera } = await import('@mediapipe/camera_utils');
+        // Load MediaPipe from CDN dynamically
+        if (!(window as any).Hands) {
+          await new Promise((resolve, reject) => {
+            const script1 = document.createElement('script');
+            script1.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js';
+            script1.crossOrigin = 'anonymous';
+            script1.onload = () => {
+              const script2 = document.createElement('script');
+              script2.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js';
+              script2.crossOrigin = 'anonymous';
+              script2.onload = resolve as any;
+              script2.onerror = reject;
+              document.head.appendChild(script2);
+            };
+            script1.onerror = reject;
+            document.head.appendChild(script1);
+          });
+        }
+
         console.log('MediaPipe libraries loaded');
         setStatus('Initializing hand detector...');
 
+        const Hands = (window as any).Hands;
+        const Camera = (window as any).Camera;
+
         const hands = new Hands({
           locateFile: (file: string) => {
-            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/${file}`;
+            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
           }
         });
 
@@ -133,7 +148,7 @@ export function useHandGesture() {
             });
           } else {
             setStatus('No hand detected');
-            setGesture(prev => ({
+            setGesture((prev: HandGesture) => ({
               ...prev,
               isOpen: false
             }));
